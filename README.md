@@ -1,8 +1,8 @@
-# Integration of FRET and WEST - Final Year Project
+# Integration of FRET and WEST
 
 ## 🔍 Project Overview
 
-This is Songyan Lai's final project for his undergraduate degree in Computer Science at the National University of Ireland Maynooth.
+This is Songyan Lai's final project for his undergraduate degree in Computer Science at the National University of Ireland Maynooth (Maynooth University).
 
 - **Contact**:  
   📧 laisongyan@foxmail.com  
