@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FRET to WEST MLTL Converter</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      textarea,
+      pre {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+      button {
+        padding: 10px 20px;
+        margin-bottom: 20px;
+      }
+      .error {
+        color: red;
+        font-weight: bold;
+      }
+      .success {
+        color: green;
+        font-weight: bold;
+      }
+      .info-box {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 20px;
+        background-color: #f9f9f9;
+      }
+      .info-box h4 {
+        margin: 0 0 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>FRET to WEST MLTL Converter</h2>
+    <h3>Manual Formula Input</h3>
+    <textarea
+      id="manualInput"
+      rows="6"
+      placeholder="Enter FRET formula here..."
+    ></textarea>
+    <button onclick="convertManualInput()">Convert Formula</button>
+    <button onclick="copyToClipboard()">Copy Result</button>
+
+    <div class="info-box" id="ignoredSymbolsBox" style="display: none">
+      <h4>Ignored Time Operators</h4>
+      <ul id="ignoredSymbolsList"></ul>
+    </div>
+
+    <h3>Conversion Steps</h3>
+    <pre id="conversionSteps"></pre>
+    <h3>MLTL Output</h3>
+    <pre id="mltlOutput"></pre>
+
+    <h3>Variable Mapping</h3>
+    <div id="variableMapping" class="info-box"></div>
+
+    <div id="validationMessage"></div>
+    <script>
+      const symbolMap = {
+        eventually: "F",
+        always: "G",
+        until: "U",
+        release: "R",
+        true: "true",
+        false: "false",
+        and: "&",
+        or: "|",
+        not: "!",
+        "->": "->",
+        "=": "=",
+      };
+
+      const ignoredSymbolsWithMeaning = {
+        "LAST V": "Indicates current state relevance; removed in conversion.",
+        X: "Next operator; removed in conversion.",
+        G: "Globally operator; removed in conversion.",
+        F: "Finally operator; removed in conversion.",
+        U: "Until operator; removed in conversion.",
+        R: "Release operator; removed in conversion.",
+      };
+
+      function updateConversionSteps(step, formula) {
+        const conversionSteps = document.getElementById("conversionSteps");
+        conversionSteps.textContent += `${step}: ${formula}\n`;
+      }
+
+      function removeIgnoredSymbols(formula) {
+        const ignoredInFormula = new Set();
+        let cleanedFormula = formula;
+        Object.keys(ignoredSymbolsWithMeaning).forEach((symbol) => {
+          const regex = new RegExp(`\\b${symbol}\\b`, "g");
+          if (regex.test(cleanedFormula)) {
+            ignoredInFormula.add(symbol);
+            cleanedFormula = cleanedFormula.replace(regex, "").trim();
+          }
+        });
+
+        // Update ignored symbols dynamically on the interface
+        if (ignoredInFormula.size > 0) {
+          const ignoredSymbolsBox =
+            document.getElementById("ignoredSymbolsBox");
+          const ignoredSymbolsList =
+            document.getElementById("ignoredSymbolsList");
+          ignoredSymbolsBox.style.display = "block"; // Show the box
+          ignoredSymbolsList.innerHTML = ""; // Clear any previous entries
+          ignoredInFormula.forEach((symbol) => {
+            const listItem = document.createElement("li");
+            listItem.innerHTML = `<strong>${symbol}</strong>: ${ignoredSymbolsWithMeaning[symbol]}`;
+            ignoredSymbolsList.appendChild(listItem);
+          });
+        }
+
+        updateConversionSteps("Removed ignored time operators", cleanedFormula);
+        return cleanedFormula;
+      }
+
+      function mapSymbols(formula) {
+        for (const [fretSymbol, mltlSymbol] of Object.entries(symbolMap)) {
+          const regex = new RegExp(`\\b${fretSymbol}\\b`, "g");
+          formula = formula.replace(regex, mltlSymbol);
+        }
+        updateConversionSteps("Mapped FRET symbols to MLTL", formula);
+        return formula;
+      }
+
+      function standardizeVariables(formula) {
+        const variableMap = {};
+        let variableCount = 0;
+        const standardizedFormula = formula.replace(
+          /\b[a-zA-Z_]\w*\b/g,
+          (match) => {
+            if (Object.values(symbolMap).includes(match)) return match;
+            if (!variableMap[match]) variableMap[match] = `p${++variableCount}`;
+            return variableMap[match];
+          }
+        );
+
+        // Display variable mapping in the interface
+        const variableMapping = document.getElementById("variableMapping");
+        variableMapping.innerHTML = "<h4>Variable Mapping</h4>";
+        Object.entries(variableMap).forEach(([original, standardized]) => {
+          variableMapping.innerHTML += `<p><strong>${standardized}:</strong> ${original}</p>`;
+        });
+
+        updateConversionSteps("Standardized variables", standardizedFormula);
+        return standardizedFormula;
+      }
+
+      function cleanUpSpacing(formula) {
+        const cleanedFormula = formula
+          .replace(/\s*([()!&|=->X<>=])\s*/g, "$1")
+          .replace(/\s+/g, " ")
+          .trim();
+        updateConversionSteps("Cleaned up spacing", cleanedFormula);
+        return cleanedFormula;
+      }
+
+      function convertFretToMltl(formula) {
+        updateConversionSteps("Original formula", formula);
+        formula = removeIgnoredSymbols(formula);
+        formula = mapSymbols(formula);
+        formula = standardizeVariables(formula);
+        formula = cleanUpSpacing(formula);
+        updateConversionSteps("Final converted formula", formula);
+        return formula;
+      }
+
+      function convertManualInput() {
+        const manualInput = document.getElementById("manualInput").value;
+        if (!manualInput) {
+          alert("Please enter a formula.");
+          return;
+        }
+        document.getElementById("conversionSteps").textContent = "";
+        document.getElementById("validationMessage").innerHTML = "";
+        document.getElementById("ignoredSymbolsBox").style.display = "none";
+        const convertedFormula = convertFretToMltl(manualInput);
+        document.getElementById(
+          "mltlOutput"
+        ).textContent = `Converted Formula: ${convertedFormula}`;
+      }
+
+      function copyToClipboard() {
+        const output = document.getElementById("mltlOutput").textContent;
+        if (!output) {
+          alert("No conversion result to copy.");
+          return;
+        }
+        navigator.clipboard
+          .writeText(output.replace("Converted Formula: ", ""))
+          .then(() => alert("Result copied to clipboard!"))
+          .catch((err) => alert("Failed to copy: " + err));
+      }
+    </script>
+  </body>
+</html>
+ <!-- turn it into a javascript file, leave a main function,and return an array of the formulas  -->
+ <!--使他便于与其他js程序相互适配，作为一个功能加入其他js程序 -->

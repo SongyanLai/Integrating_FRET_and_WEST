@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FRET to WEST MLTL Converter</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      textarea,
+      pre {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+      button {
+        padding: 10px 20px;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>FRET to WEST MLTL Converter</h2>
+    <h3>Manual Formula Input</h3>
+    <textarea
+      id="manualInput"
+      rows="4"
+      cols="50"
+      placeholder="Enter FRET formula here..."
+    ></textarea>
+    <button onclick="convertManualInput()">Convert Manual Input</button>
+    <h3>Conversion Steps</h3>
+    <pre id="conversionSteps"></pre>
+    <h3>MLTL Output</h3>
+    <pre id="mltlOutput"></pre>
+    <script>
+      const symbolMap = {
+        eventually: "F",
+        always: "G",
+        until: "U",
+        release: "R",
+        true: "true",
+        false: "false",
+        and: "&",
+        or: "|",
+        not: "!",
+        "->": "->",
+        "=": "=",
+      };
+
+      function updateConversionSteps(step) {
+        const conversionSteps = document.getElementById("conversionSteps");
+        conversionSteps.textContent += step + "\n";
+      }
+
+      function standardizeVariables(formula) {
+        const variableMap = {};
+        let variableCount = 0;
+        const standardizedFormula = formula.replace(
+          /\b[a-zA-Z_]\w*\b/g,
+          (match) => {
+            if (Object.values(symbolMap).includes(match)) return match;
+            if (!variableMap[match]) variableMap[match] = `p${variableCount++}`;
+            return variableMap[match];
+          }
+        );
+        updateConversionSteps(`Standardized Variables: ${standardizedFormula}`);
+        return standardizedFormula;
+      }
+
+      function wrapBinaryConnectives(formula) {
+        const wrappedFormula = formula.replace(
+          /(\w+)\s*(&|\||->|=)\s*(\w+)/g,
+          "($1 $2 $3)"
+        );
+        updateConversionSteps(`Wrapped Binary Connectives: ${wrappedFormula}`);
+        return wrappedFormula;
+      }
+
+      function fixUnaryOperators(formula) {
+        const fixedFormula = formula
+          .replace(/!\s*(\w+)/g, "!$1") // 去除 `!` 后多余空格
+          .replace(/\~(\w+)/g, "!$1") // 将 `~` 替换为 `!`
+          .replace(/\(\!(\w+)\)/g, "!$1"); // 简化嵌套的否定
+        updateConversionSteps(`Fixed Unary Operators: ${fixedFormula}`);
+        return fixedFormula;
+      }
+
+      function cleanUpSpacing(formula) {
+        const cleanedFormula = formula
+          .replace(/\s*([()!&|=->])\s*/g, "$1") // 去除符号两侧的空格
+          .replace(/\s+/g, " ") // 移除多余空格
+          .trim(); // 清除首尾空格
+        updateConversionSteps(`Cleaned Up Spacing: ${cleanedFormula}`);
+        return cleanedFormula;
+      }
+
+      function removeExtraP(formula) {
+        // 去除多余的 p 数字
+        const cleanedFormula = formula.replace(/p0\s*&\s*p0/, "p0");
+        return cleanedFormula;
+      }
+
+      function convertFretToMltl(formula) {
+        updateConversionSteps(`Original Formula: ${formula}`);
+        for (const [fretSymbol, mltlSymbol] of Object.entries(symbolMap)) {
+          const regex = new RegExp(`\\b${fretSymbol}\\b`, "g");
+          formula = formula.replace(regex, mltlSymbol);
+        }
+        updateConversionSteps(`Symbol Mapped Formula: ${formula}`);
+        formula = standardizeVariables(formula);
+        formula = wrapBinaryConnectives(formula);
+        formula = fixUnaryOperators(formula);
+        formula = cleanUpSpacing(formula);
+        formula = removeExtraP(formula);
+        const finalFormula = formula
+          .replace(/\s*([()])\s*/g, "$1") // 去除括号内多余空格
+          .replace(/\s+/g, " ") // 最终压缩空格
+          .trim();
+        updateConversionSteps(`Final Converted Formula: ${finalFormula}`);
+        return `${finalFormula}`;
+      }
+
+      function convertManualInput() {
+        const manualInput = document.getElementById("manualInput").value;
+        if (!manualInput) {
+          alert("Please enter a formula.");
+          return;
+        }
+        document.getElementById("conversionSteps").textContent = "";
+        const convertedFormula = convertFretToMltl(manualInput);
+        document.getElementById(
+          "mltlOutput"
+        ).textContent = `Converted Formula: ${convertedFormula}`;
+      }
+    </script>
+  </body>
+</html>

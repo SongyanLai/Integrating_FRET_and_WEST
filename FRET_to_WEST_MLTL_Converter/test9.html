@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FRET to WEST MLTL Converter</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      textarea,
+      pre {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+      button {
+        padding: 10px 20px;
+        margin-bottom: 20px;
+      }
+      .error {
+        color: red;
+        font-weight: bold;
+      }
+      .success {
+        color: green;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>FRET to WEST MLTL Converter</h2>
+    <h3>Manual Formula Input</h3>
+    <textarea
+      id="manualInput"
+      rows="6"
+      placeholder="Enter FRET formula here..."
+    ></textarea>
+    <button onclick="convertManualInput()">Convert Formula</button>
+    <button onclick="copyToClipboard()">Copy Result</button>
+    <h3>Conversion Steps</h3>
+    <pre id="conversionSteps"></pre>
+    <h3>MLTL Output</h3>
+    <pre id="mltlOutput"></pre>
+    <div id="validationMessage"></div>
+    <script>
+      const symbolMap = {
+        eventually: "F",
+        always: "G",
+        until: "U",
+        release: "R",
+        true: "true",
+        false: "false",
+        and: "&",
+        or: "|",
+        not: "!",
+        "->": "->",
+        "=": "=",
+        X: "X",
+      };
+
+      function updateConversionSteps(step, formula) {
+        const conversionSteps = document.getElementById("conversionSteps");
+        conversionSteps.textContent += `${step}: ${formula}\n`;
+      }
+
+      function removeUnnecessaryKeywords(formula) {
+        const cleanedFormula = formula.replace(/\bLAST V\b/g, "").trim();
+        updateConversionSteps("Removed unnecessary keywords", cleanedFormula);
+        return cleanedFormula;
+      }
+
+      function mapSymbols(formula) {
+        for (const [fretSymbol, mltlSymbol] of Object.entries(symbolMap)) {
+          const regex = new RegExp(`\\b${fretSymbol}\\b`, "g");
+          formula = formula.replace(regex, mltlSymbol);
+        }
+        updateConversionSteps("Mapped FRET symbols to MLTL", formula);
+        return formula;
+      }
+
+      function standardizeVariables(formula) {
+        const variableMap = {};
+        let variableCount = 0;
+        const standardizedFormula = formula.replace(
+          /\b[a-zA-Z_]\w*\b/g,
+          (match) => {
+            if (Object.values(symbolMap).includes(match)) return match;
+            if (!variableMap[match]) variableMap[match] = `p${++variableCount}`;
+            return variableMap[match];
+          }
+        );
+        updateConversionSteps("Standardized variables", standardizedFormula);
+        return standardizedFormula;
+      }
+
+      function removeRedundantParentheses(formula) {
+        const stack = [];
+        const toRemove = new Set();
+
+        // Detect redundant parentheses
+        for (let i = 0; i < formula.length; i++) {
+          const char = formula[i];
+          if (char === "(") {
+            stack.push(i);
+          } else if (char === ")") {
+            const start = stack.pop();
+            if (
+              start !== undefined &&
+              formula[start + 1] !== "(" &&
+              formula[i - 1] !== ")"
+            ) {
+              toRemove.add(start);
+              toRemove.add(i);
+            }
+          }
+        }
+
+        // Remove redundant parentheses
+        let cleanedFormula = "";
+        for (let i = 0; i < formula.length; i++) {
+          if (!toRemove.has(i)) {
+            cleanedFormula += formula[i];
+          }
+        }
+
+        updateConversionSteps(
+          "Removed redundant parentheses",
+          cleanedFormula.trim()
+        );
+        return cleanedFormula.trim();
+      }
+
+      function handleComparisonOperators(formula) {
+        const comparisonRegex = /(\w+)\s*(<|>|<=|>=|==|!=)\s*(\w+)/g;
+        const standardizedFormula = formula.replace(
+          comparisonRegex,
+          (_, left, op, right) => {
+            return `(${left} ${op} ${right})`;
+          }
+        );
+        updateConversionSteps(
+          "Handled comparison operators",
+          standardizedFormula
+        );
+        return standardizedFormula;
+      }
+
+      function cleanUpSpacing(formula) {
+        const cleanedFormula = formula
+          .replace(/\s*([()!&|=->X<>=])\s*/g, "$1")
+          .replace(/\s+/g, " ")
+          .trim();
+        updateConversionSteps("Cleaned up spacing", cleanedFormula);
+        return cleanedFormula;
+      }
+
+      function detectExtraParentheses(formula) {
+        const stack = [];
+        let hasExtraParentheses = false;
+
+        for (let i = 0; i < formula.length; i++) {
+          const char = formula[i];
+          if (char === "(") stack.push(i);
+          else if (char === ")") {
+            if (stack.length === 0) {
+              hasExtraParentheses = true;
+              break;
+            }
+            stack.pop();
+          }
+        }
+
+        if (stack.length > 0) hasExtraParentheses = true;
+
+        const validationMessage = document.getElementById("validationMessage");
+        if (hasExtraParentheses) {
+          validationMessage.innerHTML =
+            '<span class="error">Warning: Formula may still contain extra or mismatched parentheses!</span>';
+        } else {
+          validationMessage.innerHTML =
+            '<span class="success">Validation Passed: No extra or mismatched parentheses detected!</span>';
+        }
+      }
+
+      function convertFretToMltl(formula) {
+        updateConversionSteps("Original formula", formula);
+        formula = removeUnnecessaryKeywords(formula);
+        formula = mapSymbols(formula);
+        formula = handleComparisonOperators(formula);
+        formula = standardizeVariables(formula);
+        formula = cleanUpSpacing(formula);
+        formula = removeRedundantParentheses(formula);
+        updateConversionSteps("Final converted formula", formula);
+        detectExtraParentheses(formula);
+        return formula;
+      }
+
+      function convertManualInput() {
+        const manualInput = document.getElementById("manualInput").value;
+        if (!manualInput) {
+          alert("Please enter a formula.");
+          return;
+        }
+        document.getElementById("conversionSteps").textContent = "";
+        document.getElementById("validationMessage").innerHTML = "";
+        const convertedFormula = convertFretToMltl(manualInput);
+        document.getElementById(
+          "mltlOutput"
+        ).textContent = `Converted Formula: ${convertedFormula}`;
+      }
+
+      function copyToClipboard() {
+        const output = document.getElementById("mltlOutput").textContent;
+        if (!output) {
+          alert("No conversion result to copy.");
+          return;
+        }
+        navigator.clipboard
+          .writeText(output.replace("Converted Formula: ", ""))
+          .then(() => alert("Result copied to clipboard!"))
+          .catch((err) => alert("Failed to copy: " + err));
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LTL to MLTL Converter</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      input,
+      button {
+        margin: 10px 0;
+      }
+      .step {
+        margin-top: 10px;
+      }
+      .error {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>LTL to MLTL Converter</h1>
+    <label for="ltlFormula">Future Time LTL Formula:</label>
+    <input type="text" id="ltlFormula" placeholder="Enter LTL formula" />
+    <br />
+    <label for="interval">Time Interval (optional, default is [0,∞]):</label>
+    <input
+      type="text"
+      id="interval"
+      placeholder="Enter time interval (e.g., [0,5])"
+    />
+    <br />
+    <button onclick="convertLTLToMLTL()">Convert</button>
+    <h2>Conversion Steps:</h2>
+    <div id="conversionSteps"></div>
+    <h2>MLTL Formula:</h2>
+    <p id="mltlFormula"></p>
+
+    <script>
+      function convertLTLToMLTL() {
+        const ltlFormula = document.getElementById("ltlFormula").value;
+        let interval = document.getElementById("interval").value;
+        const conversionSteps = document.getElementById("conversionSteps");
+        conversionSteps.innerHTML = ""; // Clear previous steps
+
+        if (!interval) {
+          interval = "[0,∞]";
+        }
+
+        // Ensure interval uses ',' to separate bounds
+        interval = interval
+          .replace(/[\[\]]/g, "")
+          .split(",")
+          .join(",");
+
+        const operators = {
+          F: `F[${interval}]`,
+          G: `G[${interval}]`,
+          U: `U[${interval}]`,
+          R: `R[${interval}]`,
+          "~": "~",
+          "|": "|",
+          "&": "&",
+          "=": "=",
+          "->": "->",
+          LAST: `G[${interval}]`, // Assuming LAST is equivalent to G in the interval
+          V: `F[${interval}]`, // Assuming V is equivalent to F in the interval
+        };
+
+        let mltlFormula = ltlFormula;
+
+        // Ensure all binary and associative connectives have parentheses
+        mltlFormula = mltlFormula.replace(
+          /(\w+)\s*(\|&=->)\s*(\w+)/g,
+          "($1 $2 $3)"
+        );
+
+        // Ensure propositional variables are correctly formatted
+        mltlFormula = mltlFormula.replace(/p\s*_(\d+)/g, "p$1");
+
+        const regex = /\b(LAST|V|F|G|U|R|~|\||&|=|->)\b/g;
+        let match;
+        while ((match = regex.exec(ltlFormula)) !== null) {
+          const operator = match[1];
+          if (operators[operator]) {
+            const step = document.createElement("div");
+            step.className = "step";
+            step.innerText = `Replace ${operator} with ${operators[operator]}`;
+            conversionSteps.appendChild(step);
+            mltlFormula = mltlFormula.replace(
+              new RegExp(`\\b${operator}\\b`, "g"),
+              operators[operator]
+            );
+          } else {
+            const step = document.createElement("div");
+            step.className = "step error";
+            step.innerText = `Unknown operator ${operator}, no replacement applied`;
+            conversionSteps.appendChild(step);
+          }
+        }
+
+        document.getElementById("mltlFormula").innerText = mltlFormula;
+      }
+    </script>
+  </body>
+</html>

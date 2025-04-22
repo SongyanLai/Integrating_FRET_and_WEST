@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FRET to WEST MLTL Converter</title>
+  </head>
+  <body>
+    <h2>FRET to WEST MLTL Converter</h2>
+    <h3>Manual Formula Input</h3>
+    <textarea
+      id="manualInput"
+      rows="4"
+      cols="50"
+      placeholder="Enter FRET formula here..."
+    ></textarea>
+    <button onclick="convertManualInput()">Convert Manual Input</button>
+    <h3>Or Upload JSON File</h3>
+    <input type="file" id="fretFile" accept=".json" />
+    <button onclick="processFile()">Convert File</button>
+    <h3>MLTL Output</h3>
+    <pre id="mltlOutput"></pre>
+    <script>
+      const symbolMap = {
+        eventually: "F",
+        always: "G",
+        until: "U",
+        release: "R",
+        true: "true",
+        false: "false",
+        and: "&",
+        or: "|",
+        not: "~",
+        "->": "->",
+        "=": "=",
+      };
+
+      function standardizeVariables(formula) {
+        const variableMap = {};
+        let variableCount = 0;
+        return formula.replace(/\b\w+\b/g, (match) => {
+          if (
+            [
+              "true",
+              "false",
+              "and",
+              "or",
+              "not",
+              "eventually",
+              "always",
+              "until",
+              "release",
+            ].includes(match)
+          ) {
+            return match;
+          }
+          if (!variableMap[match]) {
+            variableMap[match] = `p${variableCount++}`;
+          }
+          return variableMap[match];
+        });
+      }
+
+      function formatIntervals(formula) {
+        return formula.replace(/\b(F|G|U|R)\b(?=\s*\w)/g, "$1[0,3]");
+      }
+
+      function wrapBinaryConnectives(formula) {
+        return formula.replace(
+          /\b(\w+)\s*(&|\||->|=)\s*(\w+)\b/g,
+          "($1 $2 $3)"
+        );
+      }
+
+      function fixUnaryOperators(formula) {
+        return formula.replace(/~\s*\((.*?)\)/g, "~$1");
+      }
+
+      function ensureParentheses(formula) {
+        return formula
+          .replace(/(\b\w+\b)/g, "($1)")
+          .replace(/\(\(/g, "(")
+          .replace(/\)\)/g, ")");
+      }
+
+      function convertFretToMltl(formula) {
+        for (const [fretSymbol, mltlSymbol] of Object.entries(symbolMap)) {
+          const regex = new RegExp(`\\b${fretSymbol}\\b`, "g");
+          formula = formula.replace(regex, mltlSymbol);
+        }
+        formula = standardizeVariables(formula);
+        formula = formatIntervals(formula);
+        formula = wrapBinaryConnectives(formula);
+        formula = fixUnaryOperators(formula);
+        formula = ensureParentheses(formula);
+        return formula.replace(/\s+/g, "");
+      }
+
+      function convertManualInput() {
+        const manualInput = document.getElementById("manualInput").value;
+        if (!manualInput) {
+          alert("Please enter a formula.");
+          return;
+        }
+        const convertedFormula = convertFretToMltl(manualInput);
+        document.getElementById(
+          "mltlOutput"
+        ).textContent = `Converted Formula: ${convertedFormula}`;
+      }
+
+      function processFile() {
+        const fileInput = document.getElementById("fretFile");
+        if (fileInput.files.length === 0) {
+          alert("Please upload a JSON file.");
+          return;
+        }
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          try {
+            const fretData = JSON.parse(e.target.result);
+            const outputs = fretData
+              .map((req) => {
+                let formula =
+                  req.semantics.ft ||
+                  req.semantics.pt ||
+                  req.semantics.ftExpanded ||
+                  req.semantics.ptExpanded ||
+                  "";
+                let convertedFormula = convertFretToMltl(formula);
+                return `Requirement ID: ${req.reqid}\nMLTL Formula: ${convertedFormula}`;
+              })
+              .join("\n\n");
+            document.getElementById("mltlOutput").textContent = outputs;
+          } catch (error) {
+            alert("Invalid JSON file.");
+          }
+        };
+        reader.readAsText(file);
+      }
+    </script>
+  </body>
+</html>
