@@ -2,19 +2,20 @@
 
 ## 🔍 Project Overview
 
-- **Student**: Songyan Lai
+This is Songyan Lai's final project for his undergraduate degree in Computer Science at the National University of Ireland Maynooth.
+
 - **Contact**:  
   📧 laisongyan@foxmail.com  
   📧 SONGYAN.LAI.2024@mumail.ie
-- **Student ID**: 24250371
-- **Supervisor**: Prof. Rosemary Monahan
+- **Maynoooth University Student ID**: 24250371
+- **Supervisor**: [Prof. Rosemary Monahan](https://www.maynoothuniversity.ie/faculty-science-engineering/our-people/rosemary-monahan)
 - **Project Type**: Research
 
 ---
 
 ## 🎯 Project Abstract
 
-This research focuses on integrating FRET and WEST to enhance requirements traceability in safety-critical systems. FRET, originally developed by NASA’s Software Verification and Validation team and later refined into MU-FRET, translates natural language requirements into Linear Temporal Logic (LTL), while the WEST tool validates Mission-time LTL (MLTL) formulas by generating corresponding regular expressions. The project involves a detailed examination of FRET, WEST, and related LTL frameworks, alongside mainstream formal verification tools, to identify the necessity for integration and to pinpoint limitations within WEST. Central to the study is the development of an interconversion process between LTL and MLTL that ensures compatibility with WEST’s syntax, utilizing regular expression-based mapping, variable normalization, and mission-time interval translation. A proof-of-concept JavaScript translator, refined through aerospace and medical case studies and incorporated as a feature within FRET, has reduced manual work by 85% and eliminated 80% of syntax differences, with comparative validation from the lead developers of both tools confirming its efficacy. For more details, please refer to 'Final Report_Integrating FRET and WEST.pdf'.
+This research focuses on integrating FRET and WEST to enhance requirements traceability in safety-critical systems. FRET, originally developed by NASA’s Software Verification and Validation team and later refined into MU-FRET, translates natural language requirements into Linear Temporal Logic (LTL), while the WEST tool validates Mission-time LTL (MLTL) formulas by generating corresponding regular expressions. The project involves a detailed examination of FRET, WEST, and related LTL frameworks, alongside mainstream formal verification tools, to identify the necessity for integration and to pinpoint limitations within WEST. Central to the study is the development of an interconversion process between LTL and MLTL that ensures compatibility with WEST’s syntax, utilizing regular expression-based mapping, variable normalization, and mission-time interval translation. A proof-of-concept JavaScript translator, refined through aerospace and medical case studies and incorporated as a feature within FRET, has reduced manual work by 85% and eliminated 80% of syntax differences, with comparative validation from the lead developers of both tools confirming its efficacy. For more details, please refer to 'Final Report.pdf'.
 
 ---
 
@@ -50,15 +51,6 @@ This research focuses on integrating FRET and WEST to enhance requirements trace
   - WEST Validation Scope Specification
   - WEST Team Discussion Report
 
-### Project_Management
-
-- **Weekly_Reports**  
-  Chronological documentation of milestones and solutions
-- **Supervisor_Communications**  
-  Meeting records with decision trails
-- **Research_Repository**  
-  Curated collection of annotated references
-
 ---
 
 ## ✅ Completed Work
@@ -87,12 +79,12 @@ This research focuses on integrating FRET and WEST to enhance requirements trace
 
 ---
 
-## 🔗 Resources
+## 🔗 Collaborators
 
-- [WEST Tool](https://github.com/zwang271/WEST)
 - [NASA FRET](https://github.com/NASA-SW-VnV/fret)
 - [MU-FRET](https://github.com/valu3s-mu/mu-fret)
 - [VALU3S](https://repo.valu3s.eu/)
+- [WEST Tool](https://github.com/zwang271/WEST)
 
 ---
 
@@ -105,5 +97,5 @@ This research focuses on integrating FRET and WEST to enhance requirements trace
 3. **WEST Validation**  
    Elwing et al. (2024) syntax flexibility analysis
 
-_Last Updated: March 2025_  
+_Last Updated: April 2025_  
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
