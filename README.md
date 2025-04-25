@@ -15,7 +15,7 @@ This is [Songyan Lai](https://songyanlai.github.io/)'s final project for his und
 
 ## 🎯 Project Abstract
 
-This research focuses on integrating FRET and WEST to enhance requirements traceability in safety-critical systems. FRET, originally developed by NASA’s Software Verification and Validation team and later refined into MU-FRET, translates natural language requirements into Linear Temporal Logic (LTL), while the WEST tool validates Mission-time LTL (MLTL) formulas by generating corresponding regular expressions. The project involves a detailed examination of FRET, WEST, and related LTL frameworks, alongside mainstream formal verification tools, to identify the necessity for integration and to pinpoint limitations within WEST. Central to the study is the development of an interconversion process between LTL and MLTL that ensures compatibility with WEST’s syntax, utilizing regular expression-based mapping, variable normalization, and mission-time interval translation. A proof-of-concept JavaScript translator, refined through aerospace and medical case studies and incorporated as a feature within FRET, has reduced manual work by 85% and eliminated 80% of syntax differences, with comparative validation from the lead developers of both tools confirming its efficacy. For more details, please refer to 'Final Report.pdf'.
+This research focuses on integrating FRET and WEST to enhance requirements traceability in safety-critical systems. FRET, originally developed by NASA’s Software Verification and Validation team and later refined into MU-FRET, translates natural language requirements into Linear Temporal Logic (LTL), while the WEST tool validates Mission-time LTL (MLTL) formulas by generating corresponding regular expressions. The project involves a detailed examination of FRET, WEST, and related LTL frameworks, alongside mainstream formal verification tools, to identify the necessity for integration and to pinpoint limitations within WEST. Central to the study is the development of an interconversion process between LTL and MLTL that ensures compatibility with WEST’s syntax, utilizing regular expression-based mapping, variable normalization, and mission-time interval translation. A proof-of-concept JavaScript translator, refined through aerospace and medical case studies and incorporated as a feature within FRET, has reduced manual work by 85% and eliminated 80% of syntax differences, with comparative validation from the lead developers of both tools confirming its efficacy. For more details, please refer to '[Final Report.pdf](https://github.com/SongyanLai/Integrating-FRET-and-WEST/blob/main/Final%20Report.pdf)'.
 
 ---
 
@@ -81,6 +81,9 @@ This research focuses on integrating FRET and WEST to enhance requirements trace
 
 ## 🔗 Collaborators
 
+NASA Vision Statement “To reach for new heights and reveal the unknown, so that what we do and learn will benefit all humankind.”
+
+- [NASA](https://www.nasa.gov/)
 - [NASA FRET](https://github.com/NASA-SW-VnV/fret)
 - [MU-FRET](https://github.com/valu3s-mu/mu-fret)
 - [VALU3S](https://repo.valu3s.eu/)
