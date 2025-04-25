@@ -81,6 +81,8 @@ This research focuses on integrating FRET and WEST to enhance requirements trace
 
 ## 🔗 Collaborators
 
+Acknowledgments. We extend our gratitude to the original NASA FRET development team for their foundational work, and to Oisin Sheridan (Maynooth University) and Zili Wang (Iowa State University) for their technical guidance and collaborative support in bridging FRET and WEST.
+
 NASA Vision Statement “To reach for new heights and reveal the unknown, so that what we do and learn will benefit all humankind.”
 
 - [NASA](https://www.nasa.gov/)
