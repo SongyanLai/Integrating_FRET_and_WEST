@@ -2,7 +2,7 @@
 
 ## 🔍 Project Overview
 
-This is [Songyan Lai](https://songyanlai.github.io/)'s final year project for his undergraduate degree in Computer Science at the National University of Ireland Maynooth (Maynooth University).
+This is [Songyan Lai](https://songyanlai.github.io/)'s final year project for his undergraduate degree in Computer Science at the National University of Ireland Maynooth.
 
 - **Contact**:  
   📧 laisongyan@foxmail.com  
