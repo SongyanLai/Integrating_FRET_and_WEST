@@ -24,7 +24,7 @@ Development of safety-critical systems needs stringent requirements specificatio
 ### FRET_to_WEST_MLTL_Converter
 
 - **Code Implementation**  
-  JavaScript/HTML syntax converter (200+ LOC) developed through ~10 iterations
+  JavaScript/HTML syntax converter developed through ~10 iterations
 - **Testing Files**  
   Archive of iterative development artifacts
 - **Deployment Status**  
