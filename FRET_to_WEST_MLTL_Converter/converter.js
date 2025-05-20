@@ -6,7 +6,6 @@ function convertLTLToMLTL() {
     interval = "(0,∞)";
   }
 
-  // 定义时态运算符及其MLTL对应形式
   const operators = {
     F: `F_${interval}`,
     G: `G_${interval}`,
