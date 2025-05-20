@@ -17,13 +17,11 @@ function convertLTLToMLTL() {
     O: `O_${interval}`,
   };
 
-  // 替换LTL公式中的运算符为MLTL形式
   let mltlFormula = ltlFormula;
   for (const [key, value] of Object.entries(operators)) {
     const regex = new RegExp(`\\b${key}\\b`, "g");
     mltlFormula = mltlFormula.replace(regex, value);
   }
 
-  // 显示转换后的MLTL公式
   document.getElementById("mltlFormula").innerText = mltlFormula;
 }
