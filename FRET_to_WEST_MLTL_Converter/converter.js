@@ -1,9 +1,7 @@
 function convertLTLToMLTL() {
-  // 获取输入的LTL公式和时间间隔
   const ltlFormula = document.getElementById("ltlFormula").value;
   let interval = document.getElementById("interval").value;
 
-  // 如果没有输入时间间隔，使用默认值 (0,∞)
   if (!interval) {
     interval = "(0,∞)";
   }
